@@ -2,9 +2,5 @@
   "buildCommand": "prisma generate && prisma migrate deploy && next build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "DATABASE_URL": "@gpse-database-url",
-    "DIRECT_URL": "@gpse-direct-url"
-  }
+  "regions": ["iad1"]
 }
