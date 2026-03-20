@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum UploadType {
+  GEOJSON_BUILDINGS
+  CSV_ENVIRONMENT
+}
+
+enum ConversionLayerType {
+  PHOTOVOLTAIC
+  PIEZOELECTRIC
+  THERMOELECTRIC
+  HYBRID
+}
+
+enum SolarConditionProfile {
+  CLEAR
+  PARTLY_CLOUDY
+  OVERCAST
+}
+
+enum RoofOrientationClass {
+  FLAT
+  PITCHED_NS
+  PITCHED_EW
+  MIXED
+}
+
+enum SurfaceExposureClass {
+  STANDARD
+  HIGH_ALBEDO
+  GREEN_ROOF
+  PV_PANEL
+}
+
+// =============================================================================
+// PROJECT
+// Projects are top-level containers for a district simulation workspace.
+// A project holds one or more scenarios and their associated simulation runs.
+// =============================================================================
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  // Bounding box in geographic coordinates: { minLng, minLat, maxLng, maxLat }
+  siteExtent  Json?
+  // Centroid for map initialization
+  centroid    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  scenarios Scenario[]
+  uploads   Upload[]
+
+  @@index([createdAt])
+}
+
+// =============================================================================
+// SCENARIO
+// A scenario represents a boundary-condition configuration for a district.
+// One scenario per project is the baseline; others are intervention scenarios.
+// The simulation engine is run per scenario. Comparing baseline to intervention
+// yields the Power-Potential Gradient Rate.
+// =============================================================================
+
+model Scenario {
+  id         String  @id @default(cuid())
+  projectId  String
+  name       String
+  isBaseline Boolean @default(false)
+
+  // GeoJSON FeatureCollection: each Feature has geometry (Polygon) and
+  // properties { height: number, id: string }
+  buildingsGeoJson Json?
+
+  // Environmental parameters
+  envParams Json?
+
+  // Simulation parameters (cell size, source weights, IGR alpha/beta, etc.)
+  simParams Json?
+
+  // Boundary conditions — the full BC vector for this scenario
+  boundaryConditions Json?
+
+  // Attractor nodes for movement proxy: [{ lng, lat, weight }]
+  attractorNodes Json?
+
+  // Storage/load nodes for systemic availability: [{ lng, lat }]
+  storageNodes Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  runs    SimulationRun[]
+
+  @@index([projectId])
+  @@index([projectId, isBaseline])
+}
+
+// =============================================================================
+// SIMULATION RUN
+// Each call to the simulation engine produces a run with a unique public runId.
+// The full per-cell output is stored as JSON in `cells`. Summary statistics
+// are stored in `summary` for quick retrieval without parsing all cells.
+// bcUpdateVector stores the delta vector if this is a non-baseline scenario.
+// =============================================================================
+
+model SimulationRun {
+  id          String    @id @default(cuid())
+  // Public-facing run identifier shown in the UI and used for feedback linkage
+  runId       String    @unique
+  scenarioId  String
+  status      RunStatus @default(PENDING)
+
+  // Per-cell simulation results: SimCell[]
+  cells Json?
+
+  // Aggregate statistics across all cells
+  summary Json?
+
+  // Boundary-condition update vector (null for baseline runs)
+  bcUpdateVector Json?
+
+  // Magnitude of the BC update vector (for PPGR Minimal denominator)
+  bcUpdateMagnitude Float?
+
+  // Wall-clock time for the simulation in milliseconds
+  durationMs Int?
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  scenario Scenario      @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  feedback RunFeedback[]
+
+  @@index([scenarioId])
+  @@index([runId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// UPLOAD
+// Stores raw content of user-uploaded files (GeoJSON or CSV).
+// Content is stored as Text to avoid binary format issues.
+// =============================================================================
+
+model Upload {
+  id        String     @id @default(cuid())
+  projectId String
+  filename  String
+  type      UploadType
+  // Raw file content as UTF-8 string
+  content   String     @db.Text
+  createdAt DateTime   @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+// =============================================================================
+// RUN FEEDBACK
+// Mandatory in-app feedback form, linked to a specific simulation run.
+// Stores the public runId string so the linkage survives run deletion.
+// =============================================================================
+
+model RunFeedback {
+  id        String   @id @default(cuid())
+  runId     String
+  // Denormalized public run ID so feedback is still readable after run deletion
+  publicRunId String
+  comment   String   @db.Text
+  // Optional 1–5 rating
+  rating    Int?
+  createdAt DateTime @default(now())
+
+  run SimulationRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@index([publicRunId])
+}
+
+// =============================================================================
+// SIMULATION PARAMETERS PRESET
+// Named saved presets for simulation parameters, stored globally.
+// =============================================================================
+
+model SimParamsPreset {
+  id        String   @id @default(cuid())
+  name      String
+  params    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
