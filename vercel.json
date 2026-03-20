@@ -1,9 +1,6 @@
 {
   "buildCommand": "prisma generate && prisma migrate deploy && next build",
-  "installCommand": "pnpm install",
+  "installCommand": "npm install -g pnpm@9.14.2 && pnpm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "ENABLE_EXPERIMENTAL_COREPACK": "1"
-  }
+  "regions": ["iad1"]
 }
