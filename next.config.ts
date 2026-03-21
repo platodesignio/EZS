@@ -29,10 +29,6 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
-  experimental: {
-    // Required for certain deck.gl internals
-    esmExternals: "loose",
-  },
 };
 
 export default nextConfig;

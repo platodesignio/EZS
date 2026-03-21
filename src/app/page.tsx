@@ -245,9 +245,9 @@ export default function HomePage() {
         setBaselineScenarioId(baseline.id);
         setActiveScenarioId(baseline.id);
         setBuildings(extractBuildings(baseline.buildingsGeoJson));
-        if (baseline.simParams) setSimParams(baseline.simParams as SimParams);
+        if (baseline.simParams) setSimParams(baseline.simParams as unknown as SimParams);
         if (baseline.boundaryConditions) {
-          setBoundaryConditions(baseline.boundaryConditions as BoundaryConditions);
+          setBoundaryConditions(baseline.boundaryConditions as unknown as BoundaryConditions);
         }
       } else if (data.data.length > 0) {
         setActiveScenarioId(data.data[0].id);
@@ -265,9 +265,9 @@ export default function HomePage() {
       const s = scenarios.find((sc) => sc.id === id);
       if (!s) return;
       setBuildings(extractBuildings(s.buildingsGeoJson));
-      if (s.simParams) setSimParams(s.simParams as SimParams);
+      if (s.simParams) setSimParams(s.simParams as unknown as SimParams);
       if (s.boundaryConditions) {
-        setBoundaryConditions(s.boundaryConditions as BoundaryConditions);
+        setBoundaryConditions(s.boundaryConditions as unknown as BoundaryConditions);
       }
       setSelectedCellId(null);
     },
