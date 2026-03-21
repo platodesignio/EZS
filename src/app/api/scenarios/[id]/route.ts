@@ -6,11 +6,12 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const scenario = await prisma.scenario.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         runs: {
           orderBy: { createdAt: "desc" },
@@ -48,8 +49,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await req.json();
     const parsed = UpdateScenarioSchema.safeParse(body);
@@ -61,7 +63,7 @@ export async function PATCH(
     }
 
     const scenario = await prisma.scenario.update({
-      where: { id: params.id },
+      where: { id },
       data: parsed.data,
     });
 
@@ -77,11 +79,12 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    await prisma.scenario.delete({ where: { id: params.id } });
-    return NextResponse.json({ ok: true, data: { id: params.id } });
+    await prisma.scenario.delete({ where: { id } });
+    return NextResponse.json({ ok: true, data: { id } });
   } catch (err) {
     console.error("[DELETE /api/scenarios/[id]]", err);
     return NextResponse.json(

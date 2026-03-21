@@ -5,13 +5,14 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     // Accept either the public runId or the database id
     const run = await prisma.simulationRun.findFirst({
       where: {
-        OR: [{ id: params.id }, { runId: params.id }],
+        OR: [{ id }, { runId: id }],
       },
       select: {
         id: true,
