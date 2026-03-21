@@ -60,31 +60,31 @@ export async function POST(req: NextRequest) {
       });
 
       if (baselineRun?.cells) {
-        baselineCells = baselineRun.cells as SimCell[];
+        baselineCells = baselineRun.cells as unknown as SimCell[];
       }
       if (baselineRun?.scenario?.boundaryConditions) {
         baselineBoundaryConditions =
-          baselineRun.scenario.boundaryConditions as BoundaryConditions;
+          baselineRun.scenario.boundaryConditions as unknown as BoundaryConditions;
       }
     }
 
     // Extract parameters with fallbacks to defaults
     const simParams: SimParams = {
       ...DEFAULT_SIM_PARAMS,
-      ...(scenario.simParams as Partial<SimParams> | null ?? {}),
+      ...((scenario.simParams as unknown as Partial<SimParams> | null) ?? {}),
     };
     const envParams: EnvParams = {
       ...DEFAULT_ENV_PARAMS,
-      ...(scenario.envParams as Partial<EnvParams> | null ?? {}),
+      ...((scenario.envParams as unknown as Partial<EnvParams> | null) ?? {}),
     };
     const boundaryConditions: BoundaryConditions = {
       ...DEFAULT_BOUNDARY_CONDITIONS,
-      ...(scenario.boundaryConditions as Partial<BoundaryConditions> | null ?? {}),
+      ...((scenario.boundaryConditions as unknown as Partial<BoundaryConditions> | null) ?? {}),
     };
     const attractorNodes: AttractorNode[] =
-      (scenario.attractorNodes as AttractorNode[] | null) ?? [];
+      (scenario.attractorNodes as unknown as AttractorNode[] | null) ?? [];
     const storageNodes: StorageNode[] =
-      (scenario.storageNodes as StorageNode[] | null) ?? [];
+      (scenario.storageNodes as unknown as StorageNode[] | null) ?? [];
 
     // Parse buildings — fall back to project-level or scenario buildings
     const buildings = parseBuildingGeoJson(scenario.buildingsGeoJson);
