@@ -41,13 +41,20 @@ declare module "@deck.gl/react" {
     initialViewState?: MapViewState;
     controller?: boolean | Record<string, unknown>;
     layers?: unknown[];
-    onViewStateChange?: (params: { viewState: MapViewState }) => void;
-    getTooltip?: (info: { object?: unknown; x: number; y: number }) => string | null | { text: string };
-    style?: CSSProperties;
-    children?: React.ReactNode;
     effects?: unknown[];
+    onViewStateChange?: (params: { viewState: MapViewState }) => void;
+    onHover?: (info: { object?: unknown; x: number; y: number }) => void;
+    onClick?: (info: { object?: unknown; x: number; y: number }) => void;
+    getTooltip?: (info: { object?: unknown; x: number; y: number }) => string | null | { text: string };
+    getCursor?: (state: { isDragging: boolean; isHovering: boolean }) => string;
+    style?: CSSProperties;
+    className?: string;
+    children?: React.ReactNode;
     width?: string | number;
     height?: string | number;
+    id?: string;
+    pickingRadius?: number;
+    useDevicePixels?: boolean | number;
   }
 
   const DeckGL: ComponentType<DeckGLProps>;
