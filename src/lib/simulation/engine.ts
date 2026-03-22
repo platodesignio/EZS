@@ -894,7 +894,7 @@ export async function runSimulation(input: EngineInput): Promise<SimulationResul
   // ---- Clean up internal fields ----
   const finalCells: SimCell[] = extCells.map((c) => {
     const { _hopDist, _cardinalDegree, _reachableEndpoints, ...clean } = c as unknown as Record<string, unknown>;
-    return clean as SimCell;
+    return clean as unknown as SimCell;
   });
 
   // ---- Hotspot ranking ----
