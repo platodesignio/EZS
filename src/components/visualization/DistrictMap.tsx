@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo } from "react";
 import DeckGL from "@deck.gl/react";
 import { Map } from "react-map-gl/maplibre";
 import {
@@ -105,8 +105,6 @@ export function DistrictMap({
   onViewStateChange,
   onCellClick,
 }: DistrictMapProps) {
-  const deckRef = useRef(null);
-
   // Extract per-cell value for the active layer
   const getCellValue = useCallback(
     (cell: SimCell): number => {
@@ -242,7 +240,6 @@ export function DistrictMap({
   return (
     <div className="relative w-full h-full bg-surface-0">
       <DeckGL
-        ref={deckRef}
         viewState={viewState}
         controller={{ dragRotate: true, scrollZoom: true }}
         onViewStateChange={({ viewState: vs }) =>
