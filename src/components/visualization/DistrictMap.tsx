@@ -10,6 +10,7 @@ import {
 } from "@deck.gl/layers";
 import { HeatmapLayer } from "@deck.gl/aggregation-layers";
 import type { MapViewState } from "@deck.gl/core";
+import { AmbientLight, DirectionalLight, LightingEffect } from "@deck.gl/core";
 import type { SimCell, MapLayer, BuildingFeature, Hotspot } from "@/types/simulation";
 import { LAYER_LABELS } from "@/types/simulation";
 import { clamp } from "@/lib/simulation/normalize";
@@ -68,12 +69,24 @@ interface DistrictMapProps {
 }
 
 // ---------------------------------------------------------------------------
-// Map style — free MapLibre demo tiles (no token required)
+// Map style — CartoDB Dark Matter (free, no token required)
 // ---------------------------------------------------------------------------
 
 const MAP_STYLE =
   process.env.NEXT_PUBLIC_MAP_STYLE ??
-  "https://demotiles.maplibre.org/style.json";
+  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+
+// ---------------------------------------------------------------------------
+// Lighting — enhances 3-D building extrusions
+// ---------------------------------------------------------------------------
+
+const ambientLight = new AmbientLight({ color: [255, 255, 255], intensity: 0.8 });
+const sunLight = new DirectionalLight({
+  color: [255, 240, 220],
+  intensity: 2.5,
+  direction: [-3, -9, -1],
+});
+const LIGHTING_EFFECT = new LightingEffect({ ambientLight, sunLight });
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -151,15 +164,15 @@ export function DistrictMap({
           extruded: true,
           getPolygon: (d: BuildingFeature) => d.footprint,
           getElevation: (d: BuildingFeature) => d.height,
-          getFillColor: [60, 70, 90, 200],
-          getLineColor: [100, 120, 160, 80],
+          getFillColor: [45, 55, 80, 210],
+          getLineColor: [80, 100, 140, 90],
           getLineWidth: 0.5,
           lineWidthUnits: "pixels",
           material: {
-            ambient: 0.35,
-            diffuse: 0.6,
-            shininess: 32,
-            specularColor: [60, 64, 70],
+            ambient: 0.4,
+            diffuse: 0.7,
+            shininess: 48,
+            specularColor: [80, 90, 120],
           },
           pickable: false,
         })
@@ -236,6 +249,7 @@ export function DistrictMap({
           onViewStateChange(vs as MapViewState)
         }
         layers={layers}
+        effects={[LIGHTING_EFFECT]}
         getCursor={({ isDragging }) => (isDragging ? "grabbing" : "crosshair")}
       >
         <Map

@@ -1,5 +1,19 @@
 // Type declarations for deck.gl 8.x packages that lack bundled .d.ts files
 declare module "@deck.gl/core" {
+  export class AmbientLight {
+    constructor(opts?: { color?: [number, number, number]; intensity?: number });
+  }
+  export class DirectionalLight {
+    constructor(opts?: {
+      color?: [number, number, number];
+      intensity?: number;
+      direction?: [number, number, number];
+    });
+  }
+  export class LightingEffect {
+    constructor(lights: Record<string, AmbientLight | DirectionalLight>);
+  }
+
   export interface MapViewState {
     longitude: number;
     latitude: number;

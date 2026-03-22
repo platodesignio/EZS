@@ -480,30 +480,67 @@ export default function HomePage() {
           publicationMode && "hidden"
         )}
       >
+        {/* Left: brand + project name */}
         <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-text-primary tracking-tight">
-            GPSE
-          </span>
-          <span className="text-text-tertiary text-2xs">|</span>
-          <span className="text-2xs text-text-tertiary">
+          <div className="flex items-center gap-1.5">
+            {/* Status indicator */}
+            <span
+              className={clsx(
+                "status-dot",
+                isSimulating ? "running" : simError ? "error" : "idle"
+              )}
+              title={isSimulating ? "Simulating…" : simError ? simError : "Ready"}
+            />
+            <span className="text-xs font-bold text-text-primary tracking-tight font-mono">
+              GPSE
+            </span>
+          </div>
+          <span className="text-border text-sm select-none">|</span>
+          <span className="text-2xs text-text-tertiary hidden sm:block">
             Generative Power Space Explorer
           </span>
-          <span className="text-2xs text-amber-400 border border-amber-700/40 bg-amber-900/20 px-1.5 py-0.5 rounded">
+          <span className="text-2xs text-amber-400/90 border border-amber-700/40 bg-amber-900/15 px-1.5 py-0.5 rounded tracking-wide">
             Reduced-Order Model
           </span>
-        </div>
-
-        <div className="flex items-center gap-2">
+          {activeRun && !simError && (
+            <span className="text-2xs font-mono text-text-tertiary border border-border rounded px-1.5 py-0.5 bg-surface-2">
+              {activeRun.runId}
+            </span>
+          )}
           {simError && (
             <span className="text-2xs text-red-400 max-w-xs truncate">
               ⚠ {simError}
             </span>
           )}
-          {activeRun && (
-            <span className="text-2xs font-mono text-text-tertiary">
-              {activeRun.runId}
-            </span>
-          )}
+        </div>
+
+        {/* Right: controls */}
+        <div className="flex items-center gap-1.5">
+          <button
+            className={clsx(
+              "text-2xs px-2 py-0.5 rounded border transition-colors",
+              showBuildings
+                ? "border-accent-blue/60 text-accent-blue bg-surface-3"
+                : "border-border text-text-tertiary hover:border-border-light hover:text-text-secondary"
+            )}
+            onClick={() => setShowBuildings((v) => !v)}
+            title="Toggle 3D building extrusions"
+          >
+            3D Bldgs
+          </button>
+          <button
+            className={clsx(
+              "text-2xs px-2 py-0.5 rounded border transition-colors",
+              showHotspots
+                ? "border-accent-yellow/60 text-accent-yellow bg-surface-3"
+                : "border-border text-text-tertiary hover:border-border-light hover:text-text-secondary"
+            )}
+            onClick={() => setShowHotspots((v) => !v)}
+            title="Toggle hotspot markers"
+          >
+            Hotspots
+          </button>
+          <div className="w-px h-4 bg-border mx-0.5" />
           <button
             className="btn-secondary text-2xs px-2 py-0.5"
             onClick={handleExportPNG}
@@ -518,30 +555,6 @@ export default function HomePage() {
             title="Submit feedback for this run"
           >
             Feedback
-          </button>
-          <button
-            className={clsx(
-              "text-2xs px-2 py-0.5 rounded border transition-colors",
-              showBuildings
-                ? "border-accent-blue/60 text-accent-blue bg-surface-3"
-                : "btn-secondary"
-            )}
-            onClick={() => setShowBuildings((v) => !v)}
-            title="Toggle building extrusions"
-          >
-            Buildings
-          </button>
-          <button
-            className={clsx(
-              "text-2xs px-2 py-0.5 rounded border transition-colors",
-              showHotspots
-                ? "border-accent-yellow/60 text-accent-yellow bg-surface-3"
-                : "btn-secondary"
-            )}
-            onClick={() => setShowHotspots((v) => !v)}
-            title="Toggle hotspot markers"
-          >
-            Hotspots
           </button>
         </div>
       </header>

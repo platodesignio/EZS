@@ -11,11 +11,11 @@ export default {
       colors: {
         // Scientific dark theme palette
         surface: {
-          0: "#0a0b0d",
-          1: "#111318",
-          2: "#181c22",
-          3: "#1f242e",
-          4: "#262d3a",
+          0: "#080a0d",
+          1: "#0f1218",
+          2: "#161b22",
+          3: "#1d2330",
+          4: "#242c3c",
         },
         accent: {
           blue: "#3b82f6",
@@ -27,7 +27,10 @@ export default {
           red: "#ef4444",
           purple: "#a855f7",
         },
-        border: "#2a3040",
+        border: {
+          DEFAULT: "#252d3d",
+          light: "#384458",
+        },
         muted: "#4b5563",
         text: {
           primary: "#f1f5f9",

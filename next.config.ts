@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Recharts 2.x and deck.gl 8.x have type incompatibilities with React 19 types.
-  // The runtime behaviour is correct; suppress type errors in CI build.
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
   // deck.gl and maplibre-gl use ES modules; transpile them for Next.js
   transpilePackages: [
     "deck.gl",

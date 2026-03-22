@@ -7,12 +7,13 @@
    ============================================================================ */
 
 :root {
-  --surface-0: #0a0b0d;
-  --surface-1: #111318;
-  --surface-2: #181c22;
-  --surface-3: #1f242e;
-  --surface-4: #262d3a;
-  --border: #2a3040;
+  --surface-0: #080a0d;
+  --surface-1: #0f1218;
+  --surface-2: #161b22;
+  --surface-3: #1d2330;
+  --surface-4: #242c3c;
+  --border: #252d3d;
+  --border-light: #384458;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-tertiary: #64748b;
@@ -22,6 +23,7 @@
   --accent-green: #22c55e;
   --accent-yellow: #eab308;
   --accent-orange: #f97316;
+  --accent-purple: #a855f7;
 }
 
 html,
@@ -39,7 +41,10 @@ body {
   box-sizing: border-box;
 }
 
-/* Scrollbar styling */
+/* ============================================================================
+   Scrollbar
+   ============================================================================ */
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -55,15 +60,70 @@ body {
   background: var(--text-tertiary);
 }
 
-/* Maplibre GL overrides */
+/* ============================================================================
+   Keyframe animations
+   ============================================================================ */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 8px 2px rgba(6, 182, 212, 0.35);
+    opacity: 0.85;
+  }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Utility classes */
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out forwards;
+}
+.animate-status-blink {
+  animation: status-blink 1s ease-in-out infinite;
+}
+
+/* ============================================================================
+   MapLibre GL overrides
+   ============================================================================ */
+
 .maplibregl-ctrl-attrib {
-  background: rgba(10, 11, 13, 0.8) !important;
+  background: rgba(8, 10, 13, 0.85) !important;
   color: #64748b !important;
-  font-size: 10px !important;
+  font-size: 9px !important;
+  border-radius: 3px !important;
 }
 .maplibregl-ctrl-attrib a {
   color: #3b82f6 !important;
 }
+.maplibregl-ctrl-attrib-button {
+  display: none !important;
+}
+
+/* ============================================================================
+   Component tokens
+   ============================================================================ */
 
 /* Layer toggle chip */
 .layer-chip {
@@ -94,27 +154,38 @@ body {
   @apply w-full bg-surface-3 border border-border rounded px-2 py-1.5
          text-text-primary text-xs placeholder-text-tertiary
          focus:outline-none focus:border-accent-blue focus:ring-1
-         focus:ring-accent-blue transition-colors;
+         focus:ring-accent-blue/30 transition-colors;
 }
 
 /* Button variants */
 .btn-primary {
   @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5
          bg-accent-blue text-white rounded text-xs font-medium
-         hover:bg-blue-600 active:bg-blue-700 transition-colors
-         disabled:opacity-50 disabled:pointer-events-none;
+         hover:bg-blue-500 active:bg-blue-700 transition-colors
+         disabled:opacity-40 disabled:pointer-events-none;
 }
 .btn-secondary {
   @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5
          bg-surface-3 border border-border text-text-secondary rounded
-         text-xs font-medium hover:border-text-tertiary hover:text-text-primary
-         transition-colors disabled:opacity-50 disabled:pointer-events-none;
+         text-xs font-medium hover:border-border-light hover:text-text-primary
+         transition-colors disabled:opacity-40 disabled:pointer-events-none;
 }
 .btn-danger {
   @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5
-         bg-red-900/40 border border-red-800/60 text-red-400 rounded
-         text-xs font-medium hover:bg-red-900/60 transition-colors
-         disabled:opacity-50 disabled:pointer-events-none;
+         bg-red-900/30 border border-red-800/50 text-red-400 rounded
+         text-xs font-medium hover:bg-red-900/50 transition-colors
+         disabled:opacity-40 disabled:pointer-events-none;
+}
+
+/* Run simulation button — glows when idle and ready */
+.btn-run {
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5
+         bg-accent-blue text-white rounded text-xs font-semibold
+         hover:bg-blue-500 active:bg-blue-700 transition-colors
+         disabled:opacity-40 disabled:pointer-events-none;
+}
+.btn-run:not(:disabled) {
+  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 /* Range slider */
@@ -123,9 +194,42 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-thumb {
   @apply appearance-none w-3 h-3 rounded-full bg-accent-blue cursor-pointer;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.6);
 }
 
-/* Publication mode overrides */
+/* ============================================================================
+   Status indicator dot
+   ============================================================================ */
+
+.status-dot {
+  @apply w-2 h-2 rounded-full;
+}
+.status-dot.idle {
+  background: var(--accent-green);
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+}
+.status-dot.running {
+  background: var(--accent-yellow);
+  animation: status-blink 0.8s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
+}
+.status-dot.error {
+  background: #f87171;
+  box-shadow: 0 0 5px rgba(248, 113, 113, 0.4);
+}
+
+/* ============================================================================
+   Map legend
+   ============================================================================ */
+
+.map-legend {
+  transition: opacity 0.2s;
+}
+
+/* ============================================================================
+   Publication mode overrides
+   ============================================================================ */
+
 .publication-mode .ui-overlay {
   display: none !important;
 }
